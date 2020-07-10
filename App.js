@@ -35,6 +35,8 @@ class App extends Component {
     this.state = {
       uri: "https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
       photoIndex: 1,
+      imgW: 400,
+      imgH: 600,
     }
     this.photos = ["https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
                    "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
@@ -63,13 +65,13 @@ class App extends Component {
       console.log("Photos index is: " + newIndex);
       var uri = this.photos[newIndex];
       console.log("Photos uri is: " + uri);
-      ImageResizer.createResizedImage(uri, 80, 60, 'JPEG', 100)
+      ImageResizer.createResizedImage(uri, 200, 300, 'JPEG', 100)
       .then(({uri}) => {
         this.photos.push(uri);
         console.log("Pushed uri " + uri);
         newIndex = this.photos.length - 1;
         console.log("Compressed index is: " + newIndex);
-        this.setState({photoIndex: newIndex});
+        this.setState({photoIndex: newIndex, imgW: 200, imgH: 300 });
       }).catch(err => {
         console.log("Error resizing image: " + err)
         this.setState({photoIndex: newIndex});
@@ -80,7 +82,7 @@ class App extends Component {
     return (
       <View style={styles.imageContainer}>
         <Button title={"Change Image"} onPress={buttonClick}/>
-        <Image style={styles.image} source={{ uri: this.photos[this.state.photoIndex]}} />
+        <Image style={{height: this.state.imgH, width: this.state.imgW}} source={{ uri: this.photos[this.state.photoIndex]}} />
       </View>
     )
   }
@@ -93,7 +95,8 @@ const styles = StyleSheet.create({
     alignItems: 'stretch'
   },
   image: {
-    flex: 1
+    width: 300,
+    height: 600
   },
   scrollView: {
     backgroundColor: Colors.lighter,
