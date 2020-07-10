@@ -31,8 +31,11 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      uri: "https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
+      uri: "https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+      photoIndex: 0,
     }
+    this.photos = ["https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+                   "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
   }
   render() {
     async function hasAndroidPermission() {
@@ -54,14 +57,16 @@ class App extends Component {
     }
 
     const buttonClick = () => {
-      this.setState({uri:"file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"})
+      this.setState({uri:"file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"});
+      this.setState({photoIndex: (this.state.photoIndex + 1) % 2});
+      console.log("Photos index is: " + this.state.photoIndex);
     }
 
     hasAndroidPermission();
     return (
       <View style={styles.imageContainer}>
         <Button title={"Change Image"} onPress={buttonClick}/>
-        <Image style={styles.image} source={{ uri: this.state.uri}} />
+        <Image style={styles.image} source={{ uri: this.photos[this.state.photoIndex]}} />
       </View>
     )
   }
