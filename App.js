@@ -31,7 +31,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      photos: []
+      uri: "https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80"
     }
   }
   render() {
@@ -52,14 +52,21 @@ class App extends Component {
       }
       console.log("Done with permissions")
     }
+
+    const buttonClick = () => {
+      this.setState({uri:"file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"})
+    }
+
     hasAndroidPermission();
     return (
       <View style={styles.imageContainer}>
-        <Image style={styles.image} source={{ uri: "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"}} />
+        <Button title={"Change Image"} onPress={buttonClick}/>
+        <Image style={styles.image} source={{ uri: this.state.uri}} />
       </View>
     )
   }
 }
+        //<Image style={styles.image} source={{ uri: "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"}} />
 
 const styles = StyleSheet.create({
   imageContainer: {
