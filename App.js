@@ -27,12 +27,14 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 
+import ImageResizer from 'react-native-image-resizer';
+
 class App extends Component {
   constructor() {
     super();
     this.state = {
       uri: "https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
-      photoIndex: 0,
+      photoIndex: 1,
     }
     this.photos = ["https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
                    "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
@@ -57,9 +59,21 @@ class App extends Component {
     }
 
     const buttonClick = () => {
-      this.setState({uri:"file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"});
-      this.setState({photoIndex: (this.state.photoIndex + 1) % 2});
-      console.log("Photos index is: " + this.state.photoIndex);
+      var newIndex = (this.state.photoIndex + 1) % this.photos.length;
+      console.log("Photos index is: " + newIndex);
+      var uri = this.photos[newIndex];
+      console.log("Photos uri is: " + uri);
+      ImageResizer.createResizedImage(uri, 80, 60, 'JPEG', 100)
+      .then(({uri}) => {
+        this.photos.push(uri);
+        console.log("Pushed uri " + uri);
+        newIndex = this.photos.length - 1;
+        console.log("Compressed index is: " + newIndex);
+        this.setState({photoIndex: newIndex});
+      }).catch(err => {
+        console.log("Error resizing image: " + err)
+        this.setState({photoIndex: newIndex});
+      })
     }
 
     hasAndroidPermission();
