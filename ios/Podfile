@@ -10,6 +10,10 @@ target 'cameraRoll' do
 
   pod 'react-native-image-resizer', :path => '../node_modules/react-native-image-resizer'
 
+  pod 'react-native-image-base64', :path => '../node_modules/react-native-image-base64'
+
+  pod 'RNFS', :path => '../node_modules/react-native-fs'
+
   target 'cameraRollTests' do
     inherit! :complete
     # Pods for testing

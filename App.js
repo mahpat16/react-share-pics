@@ -28,6 +28,7 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import ImageResizer from 'react-native-image-resizer';
+var RNFS = require('react-native-fs');
 
 class App extends Component {
   constructor() {
@@ -38,7 +39,7 @@ class App extends Component {
       imgW: 400,
       imgH: 600,
     }
-    this.photos = ["https://images.unsplash.com/photo-1594046243098-0fceea9d451e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=1350&q=80",
+    this.photos = ["https://upload.wikimedia.org/wikipedia/commons/5/5d/M%C3%BCnster%2C_Historisches_Rathaus_--_2018_--_1211-29.jpg",
                    "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
   }
   render() {
@@ -63,15 +64,18 @@ class App extends Component {
     const buttonClick = () => {
       var newIndex = (this.state.photoIndex + 1) % this.photos.length;
       console.log("Photos index is: " + newIndex);
-      var uri = this.photos[newIndex];
-      console.log("Photos uri is: " + uri);
-      ImageResizer.createResizedImage(uri, 200, 300, 'JPEG', 100)
+      var newuri = this.photos[newIndex];
+      console.log("Photos uri is: " + newuri);
+      ImageResizer.createResizedImage(newuri, 200, 300, 'JPEG', 100)
       .then(({uri}) => {
-        this.photos.push(uri);
-        console.log("Pushed uri " + uri);
-        newIndex = this.photos.length - 1;
-        console.log("Compressed index is: " + newIndex);
-        this.setState({photoIndex: newIndex, imgW: 200, imgH: 300 });
+        console.log("Trying to set base64 image: " + uri)
+        RNFS.readFile(uri, 'base64')
+          .then(base64String => {
+            console.log("Base64 of img is: " + base64String);
+            compressedImg = 'data:image/jpeg;base64,' + base64String;
+            this.photos.push(compressedImg);
+            this.setState({photoIndex: (this.photos.length - 1), imgW: 300, imgH: 500 });
+          });
       }).catch(err => {
         console.log("Error resizing image: " + err)
         this.setState({photoIndex: newIndex});
