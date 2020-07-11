@@ -28,6 +28,9 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 
 import ImageResizer from 'react-native-image-resizer';
+import PubNub from 'pubnub';
+import { PubNubProvider, PubNubConsumer } from 'pubnub-react';
+
 var RNFS = require('react-native-fs');
 
 class App extends Component {
@@ -38,9 +41,28 @@ class App extends Component {
       photoIndex: 1,
       imgW: 400,
       imgH: 600,
+      sharedImg: null,
     }
     this.photos = ["https://upload.wikimedia.org/wikipedia/commons/5/5d/M%C3%BCnster%2C_Historisches_Rathaus_--_2018_--_1211-29.jpg",
                    "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
+    this.pubnub = new PubNub({
+      publishKey: 'pub-c-f4a5342c-6ad7-45f0-8239-6c44d94c2305',
+      subscribeKey: 'sub-c-c5207010-bf0c-11ea-a57f-4e41fc185ce6',
+      uuid: "0",
+      subscribeRequestTimeout: 60000,
+      presenceTimeout: 122
+    });
+
+    this.listener = {
+        message: envelope => {
+          console.log("Got draw message")
+          newImg = 'data:image/jpeg;base64,' + envelope.message.img;
+          this.setState({sharedImg: newImg, imgW:300, imgH: 500});
+        }
+      };
+
+    this.pubnub.addListener(this.listener);
+    this.pubnub.subscribe({ channels: ["draw"] })
   }
   render() {
     async function hasAndroidPermission() {
@@ -66,15 +88,19 @@ class App extends Component {
       console.log("Photos index is: " + newIndex);
       var newuri = this.photos[newIndex];
       console.log("Photos uri is: " + newuri);
-      ImageResizer.createResizedImage(newuri, 200, 300, 'JPEG', 100)
+      ImageResizer.createResizedImage(newuri, 100, 200, 'JPEG', 50)
       .then(({uri}) => {
         console.log("Trying to set base64 image: " + uri)
         RNFS.readFile(uri, 'base64')
           .then(base64String => {
-            console.log("Base64 of img is: " + base64String);
-            compressedImg = 'data:image/jpeg;base64,' + base64String;
-            this.photos.push(compressedImg);
-            this.setState({photoIndex: (this.photos.length - 1), imgW: 300, imgH: 500 });
+            console.log("Base64 of img is: " + base64String.length);
+            const message = {
+              img: base64String
+            };
+
+            console.log("Publishing to pubnub")
+            this.pubnub.publish({channel: "draw", message});
+            console.log("Done publishing")
           });
       }).catch(err => {
         console.log("Error resizing image: " + err)
@@ -84,10 +110,12 @@ class App extends Component {
 
     hasAndroidPermission();
     return (
+      <PubNubProvider client={this.pubnub}>
       <View style={styles.imageContainer}>
         <Button title={"Change Image"} onPress={buttonClick}/>
-        <Image style={{height: this.state.imgH, width: this.state.imgW}} source={{ uri: this.photos[this.state.photoIndex]}} />
+        <Image style={{height: this.state.imgH, width: this.state.imgW}} source={{ uri: this.state.sharedImg}} />
       </View>
+      </PubNubProvider>
     )
   }
 }

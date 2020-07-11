@@ -10,6 +10,8 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "pubnub": "^4.28.2",
+    "pubnub-react": "^2.0.0",
     "react": "16.13.1",
     "react-native": "0.63.0",
     "react-native-fs": "^2.16.6",
