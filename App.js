@@ -30,6 +30,7 @@ import {
 import ImageResizer from 'react-native-image-resizer';
 import PubNub from 'pubnub';
 import { PubNubProvider, PubNubConsumer } from 'pubnub-react';
+import CameraRoll from "@react-native-community/cameraroll";
 
 var RNFS = require('react-native-fs');
 
@@ -42,6 +43,7 @@ class App extends Component {
       imgW: 400,
       imgH: 600,
       sharedImg: null,
+      photos: [],
     }
     this.photos = ["https://upload.wikimedia.org/wikipedia/commons/5/5d/M%C3%BCnster%2C_Historisches_Rathaus_--_2018_--_1211-29.jpg",
                    "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"];
@@ -85,6 +87,20 @@ class App extends Component {
     }
   }
 
+  _handleButtonPress = () => {
+    console.log("In get photos button");
+    CameraRoll.getPhotos({
+        first: 20,
+        assetType: 'Photos',
+      })
+      .then(r => {
+        this.setState({ photos: r.edges });
+      })
+      .catch((err) => {
+          //Error Loading Images
+          console.log("Failed to get photos: " + err)
+      });
+  };
 
   render() {
     async function hasAndroidPermission() {
@@ -125,17 +141,32 @@ class App extends Component {
     }
 
     hasAndroidPermission();
+
     return (
       <PubNubProvider client={this.pubnub}>
       <View style={styles.imageContainer}>
         <Button title={"Change Image"} onPress={buttonClick}/>
         <Image style={{height: this.state.imgH, width: this.state.imgW}} source={{ uri: this.state.sharedImg}} />
+        <Button title="Load Images" onPress={this._handleButtonPress} />
+        <ScrollView>
+          {this.state.photos.map((p, i) => {
+          return (
+            <Image
+              key={i}
+              style={{
+                width: 300,
+                height: 100,
+              }}
+              source={{ uri: p.node.image.uri }}
+            />
+          );
+        })}
+        </ScrollView>
       </View>
       </PubNubProvider>
     )
   }
 }
-        //<Image style={styles.image} source={{ uri: "file:///storage/emulated/0/WhatsApp/Media/WhatsApp Images/IMG-20200708-WA0013.jpg"}} />
 
 const styles = StyleSheet.create({
   imageContainer: {
