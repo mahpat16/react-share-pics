@@ -55,15 +55,37 @@ class App extends Component {
 
     this.listener = {
         message: envelope => {
-          console.log("Got draw message")
-          newImg = 'data:image/jpeg;base64,' + envelope.message.img;
-          this.setState({sharedImg: newImg, imgW:300, imgH: 500});
+          if (envelope.message.img != null) {
+            console.log("GGot draw message " + envelope.message.img.length);
+            newImg = 'data:image/jpeg;base64,' + envelope.message.img;
+            this.setState({sharedImg: newImg, imgW:320, imgH: 640});
+          }
         }
       };
 
     this.pubnub.addListener(this.listener);
     this.pubnub.subscribe({ channels: ["draw"] })
+
+    this.compressImg = async(img) => {
+      let compression = 90;
+      while (compression > 50) {
+        compression -= 3;
+        try {
+          const rtn = await ImageResizer.createResizedImage(img, 320, 640, 'JPEG', compression);
+          const {uri} = rtn;
+          const base64URI = await RNFS.readFile(uri, 'base64');
+          if (base64URI.length < 25000) {
+            return base64URI;
+          }
+        } catch(e) {
+          console.log("compressImg: Error: " + e)
+          return null;
+        }
+      }
+    }
   }
+
+
   render() {
     async function hasAndroidPermission() {
       console.log("Asking for permissions")
@@ -83,29 +105,23 @@ class App extends Component {
       console.log("Done with permissions")
     }
 
-    const buttonClick = () => {
+    const buttonClick = async() => {
       var newIndex = (this.state.photoIndex + 1) % this.photos.length;
       console.log("Photos index is: " + newIndex);
       var newuri = this.photos[newIndex];
       console.log("Photos uri is: " + newuri);
-      ImageResizer.createResizedImage(newuri, 100, 200, 'JPEG', 50)
-      .then(({uri}) => {
-        console.log("Trying to set base64 image: " + uri)
-        RNFS.readFile(uri, 'base64')
-          .then(base64String => {
-            console.log("Base64 of img is: " + base64String.length);
-            const message = {
-              img: base64String
-            };
-
-            console.log("Publishing to pubnub")
-            this.pubnub.publish({channel: "draw", message});
-            console.log("Done publishing")
-          });
-      }).catch(err => {
-        console.log("Error resizing image: " + err)
+      const compressedImg = await this.compressImg(newuri);
+      if (compressedImg == null) {
         this.setState({photoIndex: newIndex});
-      })
+        return;
+      }
+      console.log("Base64 of img is: " + compressedImg.length);
+      const message = {
+        img: compressedImg
+      };
+      console.log("Publishing to pubnub")
+      this.pubnub.publish({channel: "draw", message});
+      console.log("Done publishing")
     }
 
     hasAndroidPermission();
