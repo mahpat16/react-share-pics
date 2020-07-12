@@ -160,7 +160,7 @@ class MyApp extends Component {
       <View style={{flex:1}}>
         <Image style={styles.imagefull} source={{ uri: sharedImg}} />
         <Button style={{flex:1}} title="Load Images" onPress={handleLoadImages} />
-        <ScrollView horizontal={true} style={{flex: 3}}>
+        <ScrollView horizontal={true} style={{flex: 1}}>
           {photos.map((p, i) => {
             return (
               <TouchableHighlight
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   imagefull: {
-    flex: 8,
+    flex: 3,
     resizeMode: "cover",
     alignItems: 'center',
     justifyContent: 'center',
