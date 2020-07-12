@@ -17,6 +17,7 @@ import {
   Text,
   PermissionsAndroid,
   StatusBar,
+  TouchableHighlight,
 } from 'react-native';
 
 import {
@@ -102,6 +103,10 @@ class App extends Component {
       });
   };
 
+  _handleTouchPress = (uri) => {
+    console.log("Pressed: " + uri);
+  }
+
   render() {
     async function hasAndroidPermission() {
       console.log("Asking for permissions")
@@ -151,11 +156,16 @@ class App extends Component {
         <ScrollView horizontal={true} style={{flex: 1}}>
           {this.state.photos.map((p, i) => {
           return (
-            <Image
+            <TouchableHighlight
               key={i}
-              style={styles.thumbnail} 
-              source={{ uri: p.node.image.uri }}
-            />
+              activeOpacity={0.2} 
+              underlayColor='#000000' 
+              onPress={() => this._handleTouchPress(p.node.image.uri)}>
+              <Image
+                style={styles.thumbnail} 
+                source={{ uri: p.node.image.uri }}
+              />
+            </TouchableHighlight>
           );
         })}
         </ScrollView>
