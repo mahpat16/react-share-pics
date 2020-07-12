@@ -148,15 +148,12 @@ class App extends Component {
         <Button title={"Change Image"} onPress={buttonClick}/>
         <Image style={{height: this.state.imgH, width: this.state.imgW}} source={{ uri: this.state.sharedImg}} />
         <Button title="Load Images" onPress={this._handleButtonPress} />
-        <ScrollView>
+        <ScrollView horizontal={true} style={{flex: 1}}>
           {this.state.photos.map((p, i) => {
           return (
             <Image
               key={i}
-              style={{
-                width: 300,
-                height: 100,
-              }}
+              style={styles.thumbnail} 
               source={{ uri: p.node.image.uri }}
             />
           );
@@ -212,6 +209,14 @@ const styles = StyleSheet.create({
     padding: 4,
     paddingRight: 12,
     textAlign: 'right',
+  },
+  thumbnail: {
+    flex: 1,
+    resizeMode: "cover",
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 200,
+    height: 200,
   },
 });
 
