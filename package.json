@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@react-native-community/cameraroll": "^4.0.0",
-    "pubnub": "^4.28.2",
+    "pubnub": "^4.37.0",
     "pubnub-react": "^2.0.0",
     "react": "16.13.1",
     "react-native": "0.63.0",
